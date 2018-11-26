@@ -75,6 +75,7 @@ function make_cross_plot(urls){
         }
         traces.push(line)
         var layout = {
+            height: '500',
             annotations: [{
                     x: 0.5004254919715793,
                     y: -0.16191064079952971,

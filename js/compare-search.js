@@ -100,7 +100,7 @@ function makeUrls(data){
     urls = []
     for(var i=0;i<fips.length;i++){
         statecode = data[fips[i]]['StateCode']
-        url = 'plots/states/'+statecode+'/'+fips[i]+'.csv'
+        url = '/plots/states/'+statecode+'/'+fips[i]+'.csv'
         urls.push(url)
     }
     return urls
@@ -108,7 +108,7 @@ function makeUrls(data){
 
 $.ajax({
     type: "GET",
-    url: 'plots/cross.csv',
+    url: '/plots/cross.csv',
     dataType: "text",
     success: function (data) {
         return processData(data);

@@ -1,17 +1,23 @@
 const STATES = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'District of Columbia', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
 const STATE_CODE = {'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'District of Columbia'}
+const STATE_ABBR = {'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA', 'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY', 'District of Columbia': 'DC'}
+
 var CURRENT_STATE = ''
 
-set_state_plot = function (state) {
-    $('#plot_frame').css('display','block');
+set_state_plot = function (state, req) {
     crumbs = document.getElementById('crumbs');
-    $("#PLOT_IFRAME").attr("src", 'plots/states/' + state + '/' + state + '.html');
-    crumbs.innerHTML = "<a href='javascript:set_us_plot()' >US</a>>><a href='javascript:set_state_plot(\"" + state + "\");'>" + STATE_CODE[state] + "</a>"
+    $('#countyPlotDiv').hide()
+    if(req==true){
+        $('#plot_frame').show();
+        $("#PLOT_IFRAME").attr("src", 'plots/states/' + state + '/' + state + '.html');
+    }
+    crumbs.innerHTML = "<a href='javascript:set_us_plot()' >US</a>>><a href='javascript:set_state_plot(\"" + state + "\", true);'>" + STATE_CODE[state] + "</a>"
     CURRENT_STATE = state
 }
 
 set_us_plot = function () {
-    $('#plot_frame').css('display','block');
+    $('#countyPlotDiv').hide()
+    $('#plot_frame').show();
     crumbs = document.getElementById('crumbs');
     $("#PLOT_IFRAME").attr("src", 'plots/US.html');
     crumbs.innerHTML = "US"
@@ -23,12 +29,11 @@ set_county_plots = function (data) {
     county = data.split('<br>')[0].split(': ')[1]
     crumbs = document.getElementById('crumbs');
     makeCountyPlot(CURRENT_STATE, fips, county)
-    // $("#PLOT_IFRAME").attr("src", 'plots/states/' + CURRENT_STATE + '/' + fips.toString() + '.html');
     crumbs.innerHTML += ">>" + county
 }
 
 onLoadHandler = function () {
-    $('#plot_frame').css('display','block');
+    $('#plot_frame').show();
     PLOT_IFRAME = document.getElementById('PLOT_IFRAME')
     var doc = PLOT_IFRAME.contentWindow || PLOT_IFRAME.contentDocument;
     if (doc.document) {
@@ -39,7 +44,7 @@ onLoadHandler = function () {
     PLOT_DOC.on('plotly_click', function (data) {
         if (data['points'][0]['data']['locationmode'] == "USA-states") {
             state = data['points'][0]['location']
-            set_state_plot(state)
+            set_state_plot(state, true)
         } else if (data['points'][0]['data']['name'] == 'US Counties') {
             set_county_plots(data['points'][0]['text'])
         }
@@ -127,9 +132,9 @@ function make_count_plot(data, county){
         ]
     }
     config = {'showLink': false, 'scrollZoom': false, 'displayModeBar': false};
-    $('#myDiv').show();
+    $('#countyPlotDiv').show();
     $('#plot_frame').hide();
-    Plotly.newPlot('myDiv', traces, layout, config);
+    Plotly.newPlot('countyPlotDiv', traces, layout, config);
 }
 
 function makeCountyPlot(state, fips, county){
